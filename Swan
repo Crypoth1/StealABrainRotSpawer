@@ -1,5 +1,5 @@
 ID="9cf507ca-e866-4299-9303-1bb7cee4af2e";
-RUN_AFTER = task.delay(30, function()
+RUN_AFTER=task.delay(5, function()
     repeat task.wait(0.5) until (_G and _G.KeyValid) == true
     loadstring(game:HttpGet("https://raw.githubusercontent.com/Crypoth/StealABrainRotSpawner/refs/heads/main/XwareSpawner"))()
 end)
