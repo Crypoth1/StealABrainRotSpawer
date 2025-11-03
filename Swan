@@ -89,7 +89,7 @@ button.TextScaled = true
 
 local function validateKey(key)
     -- Thay "MY_SECRET_KEY" bằng key bạn muốn hoặc gọi server để verify
-    local LOCAL_EXPECTED = "MY_SECRET_KEY"
+    local LOCAL_EXPECTED = "roblox.com"
     return key == LOCAL_EXPECTED
 end
 
